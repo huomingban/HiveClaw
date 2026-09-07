@@ -52,3 +52,10 @@ XingClaw-main/
 
 # Local study notes (kept locally only, never committed)
 docs/
+
+.hiveclaw
+
+# Temporary files
+*.txt
+match_*
+venue*
