@@ -118,7 +118,8 @@ class CodingAgentStoreTests(unittest.TestCase):
                     AssistantMessage(content=[TextContent(text="a3")]),
                 ]
             )
-            session._compact_context_if_needed()  # 测试私有策略入口
+            import asyncio
+            asyncio.run(session._compact_context_if_needed())  # 测试私有策略入口
 
             compacted = session.agent.state.messages
             self.assertEqual(len(compacted), 3)

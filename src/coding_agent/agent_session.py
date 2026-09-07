@@ -14,6 +14,7 @@ from pathlib import Path
 import asyncio
 import inspect
 import logging
+from dataclasses import asdict
 from typing import Awaitable, Callable
 
 from ai.overflow import estimate_context_tokens, is_context_overflow
@@ -93,6 +94,11 @@ class AgentSession:
         self.after_prompt_hooks = list(options.after_prompt_hooks)
         self.before_tool_call = options.before_tool_call
         self.after_tool_call = options.after_tool_call
+        self.approval_manager = options.approval_manager
+        self.memory_store = options.memory_store
+        if self.approval_manager is not None:
+            self.approval_manager.session_id = self.session_id
+            self.approval_manager.attach_audit_sink(self.store.append_event)
         self._unsubscribe = self.agent.subscribe(self._on_agent_event)
 
     @property
@@ -140,12 +146,38 @@ class AgentSession:
         }
 
     async def prompt(self, text: str, *, images: list[str] | None = None) -> list[AgentMessage]:
+        await self._inject_relevant_memories(text)
         await self._run_lifecycle_hooks(text=text, is_continue=False, hooks=self.before_prompt_hooks)
         await self._check_and_compact_before_prompt()
         result = await self._run_with_retry(lambda: self.agent.prompt(text, images=images))
         await self._compact_context_if_needed()
         await self._run_lifecycle_hooks(text=text, is_continue=False, hooks=self.after_prompt_hooks)
         return result
+
+    async def _inject_relevant_memories(self, query: str) -> None:
+        if self.memory_store is None:
+            return
+        marker = "\n\n相关项目记忆（仅作参考）：\n"
+        self.agent.state.system_prompt = self.agent.state.system_prompt.split(marker, 1)[0]
+        memory_text = self.memory_store.format_results(query, limit=5)
+        if memory_text:
+            self.agent.state.system_prompt += marker + memory_text
+            self.store.append_event({"type": "memory_retrieved", "query": query[:300], "count": len(memory_text.splitlines())})
+
+    def add_memory(self, content: str, **kwargs: Any) -> dict[str, Any]:
+        if self.memory_store is None:
+            raise RuntimeError("Memory store is not configured")
+        item = self.memory_store.add(content, source_session_id=self.session_id, **kwargs)
+        self.store.append_event({"type": "memory_added", "memory_id": item.memory_id, "memory_type": item.memory_type})
+        return asdict(item)
+
+    def pending_approvals(self) -> list[dict[str, Any]]:
+        return self.approval_manager.pending() if self.approval_manager is not None else []
+
+    def decide_approval(self, confirmation_id: str, *, approved: bool, decided_by: str = "user", reason: str = "") -> dict[str, Any]:
+        if self.approval_manager is None:
+            raise RuntimeError("Human approval is not configured")
+        return self.approval_manager.decide(confirmation_id, approved=approved, decided_by=decided_by, reason=reason)
 
     async def prompt_message(self, message: UserMessage) -> list[AgentMessage]:
         await self._check_and_compact_before_prompt()
@@ -211,6 +243,9 @@ class AgentSession:
                 after_prompt_hooks=self.after_prompt_hooks,
                 before_tool_call=self.before_tool_call,
                 after_tool_call=self.after_tool_call,
+                approval_manager=self.approval_manager,
+                memory_store=self.memory_store,
+                human_approval_enabled=self.approval_manager is not None,
             )
         )
 

@@ -20,6 +20,8 @@ from .runner import RunOptions, run, run_interactive, run_print, run_rpc
 from .resources import WorkspaceResourceLoader, WorkspaceResources, WorkspaceSettings
 from .system_prompt import SystemPromptBuildOptions, build_default_system_prompt, build_system_prompt
 from .types import AgentSessionOptions, CreateAgentSessionOptions
+from .human_approval import ApprovalRequest, HumanApprovalManager
+from .memory_store import LocalOnnxEmbeddingBackend, Memory, MemoryStore
 
 __all__ = [
     "AgentSession",
@@ -49,4 +51,9 @@ __all__ = [
     "run_print",
     "run_interactive",
     "run_rpc",
+    "ApprovalRequest",
+    "HumanApprovalManager",
+    "Memory",
+    "MemoryStore",
+    "LocalOnnxEmbeddingBackend",
 ]

@@ -40,6 +40,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--max-retries", type=int, default=2, help="Maximum retry count")
     parser.add_argument("--retry-base-delay-ms", type=int, default=1200, help="Retry base delay in milliseconds")
     parser.add_argument("--read-only", action="store_true", help="Enable read-only mode (disable write/edit/bash)")
+    parser.add_argument("--human-approval", action="store_true", help="Require confirmation before write/edit/bash tools")
     parser.add_argument("--allow-dangerous-bash", action="store_true", help="Disable dangerous bash blocking")
     parser.add_argument(
         "--bash-allow-pattern",
@@ -84,6 +85,7 @@ async def _run_from_args(args: argparse.Namespace) -> int:
         max_retries=args.max_retries,
         retry_base_delay_ms=args.retry_base_delay_ms,
         read_only_mode=bool(args.read_only),
+        human_approval_enabled=bool(args.human_approval),
         block_dangerous_bash=not bool(args.allow_dangerous_bash),
         bash_allow_patterns=args.bash_allow_pattern,
         bash_block_patterns=args.bash_block_pattern,

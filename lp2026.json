@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>406 Gzip encoding is required for API requests. See liquipedia.net/api-terms-of-use</title>
+  </head>
+  <body>
+    <h1>Error 406 Gzip encoding is required for API requests. See liquipedia.net/api-terms-of-use</h1>
+    <p>Gzip encoding is required for API requests. See liquipedia.net/api-terms-of-use</p>
+    <h3>Guru Meditation:</h3>
+    <p>XID: 759621727</p>
+    <hr>
+    <p>Varnish cache server</p>
+  </body>
+</html>

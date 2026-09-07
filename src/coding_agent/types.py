@@ -68,6 +68,9 @@ class AgentSessionOptions:
     after_tool_call: Optional[
         Callable[[AfterToolCallContext, Any | None], AfterToolCallResult | None | Awaitable[AfterToolCallResult | None]]
     ] = None
+    approval_manager: Any | None = None
+    memory_store: Any | None = None
+    human_approval_enabled: bool = False
 
 
 @dataclass
@@ -124,6 +127,9 @@ class CreateAgentSessionOptions:
     after_tool_call: Optional[
         Callable[[AfterToolCallContext, Any | None], AfterToolCallResult | None | Awaitable[AfterToolCallResult | None]]
     ] = None
+    approval_manager: Any | None = None
+    memory_store: Any | None = None
+    human_approval_enabled: bool = False
 
     def resolve_model(self) -> Model:
         if self.model is not None:

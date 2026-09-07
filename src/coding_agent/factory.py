@@ -20,6 +20,8 @@ from .resources import WorkspaceResourceLoader
 from .session_store import SessionStore
 from .system_prompt import SystemPromptBuildOptions, build_system_prompt
 from .types import AgentSessionOptions, CreateAgentSessionOptions
+from .human_approval import HumanApprovalManager
+from .memory_store import MemoryStore
 
 
 def _canonical_tool_names(tools) -> list[str]:
@@ -302,7 +304,13 @@ def create_agent_session(options: AgentSessionOptions | CreateAgentSessionOption
         )
     )
 
-    before_tool_call = _compose_before_tool_call(options.before_tool_call, loaded_extensions.before_tool_hooks)
+    approval_manager = options.approval_manager
+    approval_hooks = list(loaded_extensions.before_tool_hooks)
+    if options.human_approval_enabled and approval_manager is None:
+        approval_manager = HumanApprovalManager()
+    if approval_manager is not None:
+        approval_hooks.insert(0, approval_manager.before_tool_call)
+    before_tool_call = _compose_before_tool_call(options.before_tool_call, approval_hooks)
     after_tool_call = _compose_after_tool_call(options.after_tool_call, loaded_extensions.after_tool_hooks)
     before_prompt_hooks = _compose_lifecycle_hooks(options.before_prompt_hooks, loaded_extensions.before_prompt_hooks)
     after_prompt_hooks = _compose_lifecycle_hooks(options.after_prompt_hooks, loaded_extensions.after_prompt_hooks)
@@ -339,5 +347,8 @@ def create_agent_session(options: AgentSessionOptions | CreateAgentSessionOption
         after_prompt_hooks=after_prompt_hooks,
         before_tool_call=before_tool_call,
         after_tool_call=after_tool_call,
+        approval_manager=approval_manager,
+        memory_store=options.memory_store or MemoryStore(workspace),
+        human_approval_enabled=options.human_approval_enabled,
     )
     return AgentSession(concrete)

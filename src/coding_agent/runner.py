@@ -13,6 +13,7 @@ from dataclasses import asdict, is_dataclass
 import inspect
 import json
 import sys
+import asyncio
 from typing import Any, Callable
 
 from ai.types import AssistantMessage, TextContent
@@ -99,6 +100,15 @@ async def run_interactive(
     持续读取输入并执行 prompt，直到命中退出命令。
     """
 
+    approval_manager = getattr(session, "approval_manager", None)
+    if approval_manager is not None:
+        async def _ask_approval(request: dict[str, Any]) -> bool:
+            output(f"[approval] {request['risk_level']}: {request['tool_name']} {request['args']}")
+            answer = await asyncio.to_thread(input_fn, "approve? [y/N] ")
+            return answer.strip().lower() in {"y", "yes"}
+
+        approval_manager.attach_request_handler(_ask_approval)
+
     output("Entering interactive mode. Type 'exit' or '/exit' to quit.")
     output(format_commands_for_help(session))
     current_session = session
@@ -149,6 +159,9 @@ def _create_fresh_session(old: AgentSession) -> AgentSession:
             after_prompt_hooks=old.after_prompt_hooks,
             before_tool_call=old.before_tool_call,
             after_tool_call=old.after_tool_call,
+            approval_manager=old.approval_manager,
+            memory_store=old.memory_store,
+            human_approval_enabled=old.approval_manager is not None,
         )
     )
 
@@ -163,6 +176,27 @@ async def _handle_interactive_command(
         return True, None
     if cmd == "/session":
         output(f"session_id={session.session_id} leaf_id={session.get_leaf_id()}")
+        return True, None
+    if cmd == "/approvals":
+        pending = session.pending_approvals()
+        output(json.dumps(pending, ensure_ascii=False, indent=2) if pending else "(no pending approvals)")
+        return True, None
+    if cmd in {"/approve", "/reject"}:
+        if not arg:
+            output(f"usage: {cmd} <confirmation_id>")
+            return True, None
+        try:
+            result = session.decide_approval(arg, approved=cmd == "/approve")
+            output(json.dumps(result, ensure_ascii=False))
+        except (KeyError, ValueError, RuntimeError) as exc:
+            output(f"approval error: {exc}")
+        return True, None
+    if cmd == "/remember":
+        if not arg:
+            output("usage: /remember <project fact>")
+            return True, None
+        item = session.add_memory(arg)
+        output(f"memory saved: {item['memory_id']}")
         return True, None
     if cmd == "/tree":
         entries = session.list_entries()

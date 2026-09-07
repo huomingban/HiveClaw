@@ -1,0 +1,117 @@
+<!doctype html><html lang=en><meta name=viewport content="width=device-width,initial-scale=1"><meta charset=utf-8><meta name=robots content="noindex"><title>Liquipedia</title><style>*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}body{min-height:100vh;display:flex;align-items:center;justify-content:center;background:#f5f5f5;font-family:-apple-system,BlinkMacSystemFont,segoe ui,sans-serif}.card{background:#fff;border:1px solid #e0e0e0;border-radius:8px;padding:40px 48px;display:flex;flex-direction:column;align-items:center;gap:20px;box-shadow:0 2px 12px rgba(0,0,0,7%);min-width:300px}h1{font-size:18px;font-weight:600;color:#1a1a1a;letter-spacing:-.01em}.status-area{display:flex;flex-direction:column;align-items:center;gap:10px}.spinner{width:32px;height:32px;border:3px solid #e0e0e0;border-top-color:#1a1a1a;border-radius:50%;animation:spin .75s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}.spinner.done{border-color:#16a34a;border-top-color:#16a34a;animation:none}.status-text{font-size:14px;color:#444}.hashrate{font-size:12px;color:#999;font-variant-numeric:tabular-nums;min-height:16px}.error-box{font-size:14px;color:#b91c1c;background:#fef2f2;border:1px solid #fecaca;border-radius:6px;padding:10px 16px;text-align:center}.error-box a{color:#b91c1c;font-weight:600;text-decoration:underline;cursor:pointer}.continue-button{display:inline-block;padding:10px 32px;border:1px solid #1a1a1a;border-radius:6px;background:#1a1a1a;color:#fff;font-size:14px;font-weight:600;text-decoration:none;cursor:pointer}.continue-button:hover{background:#333;border-color:#333}.continue-button:focus-visible{outline:2px solid #1a1a1a;outline-offset:2px}</style><div class=card><h1>Are You Human?</h1><div class=status-area><div class=spinner id=spinner></div><p class=status-text id=status-text>Verifying your browser…<p class=hashrate id=hashrate></div><div id=error-box class=error-box style=display:none></div><a id=continue-link class=continue-button href style=display:none>Continue</a></div><script>const errorBox=document.getElementById("error-box"),spinner=document.getElementById("spinner"),statusText=document.getElementById("status-text"),hashrateEl=document.getElementById("hashrate"),continueLink=document.getElementById("continue-link");function showError(e){spinner.style.display="none",statusText.style.display="none",errorBox.innerHTML=e,errorBox.style.display="block"}function showContinue(){spinner.classList.add("done"),statusText.textContent="Verification complete.",continueLink.href=window.location.href,continueLink.style.display="inline-block",continueLink.focus()}continueLink.addEventListener("click",e=>{if(e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;e.preventDefault(),window.location.reload()});const RETRY_LINK='Verification failed. <a href="" onclick="window.location.reload();return false;">Retry?</a>',BLOCKED="Your browser could not be verified. Please try again in a standard, up-to-date web browser.",SIGNAL_VERSION=1,SIGNAL_TIMEOUT_MS=1e3,AUTOMATION_GLOBALS=["__playwright","__pwInitScripts","__PW_inspect","__pw_manual","__playwright_target__","__playwright_evaluation_script__","__puppeteer__","__puppeteer_evaluation_script__","puppeteer","__nightmare","_phantom","callPhantom","phantom","__phantomas","_selenium","calledSelenium","__selenium_unwrapped","__selenium_evaluate","__webdriver_evaluate","__webdriver_unwrapped","__webdriverFunc","__webdriver_script_fn","__webdriver_script_func","__webdriver_script_function","__driver_evaluate","__driver_unwrapped","__fxdriver_evaluate","__fxdriver_unwrapped","_WEBDRIVER_ELEM_CACHE","__$webdriverAsyncExecutor","domAutomation","domAutomationController","__lastWatirAlert","__lastWatirConfirm","__lastWatirPrompt","__stopAllTimers","__bidiHooks"],NODE_GLOBALS=["process","require","Buffer","module","global"],DRIVER_PROP_PATTERN=/^\$?cdc_|^\$[a-z]{3}_|^__(?:web|fx)driver|^__selenium|^__driver/,NATIVE_CODE=/\{\s*\[native code\]\s*\}/,STACK_MARKERS=/puppeteer|playwright|selenium|webdriver|node:internal|__pw/i;function safe(e,t=null){try{const n=e();return n===void 0?t:n}catch{return t}}function withTimeout(e,t){return Promise.race([Promise.resolve(e).catch(()=>null),new Promise(e=>setTimeout(()=>e(null),t))])}function isNative(e){return typeof e=="function"&&NATIVE_CODE.test(safe(()=>Function.prototype.toString.call(e),""))}function findAutomationGlobals(){return AUTOMATION_GLOBALS.filter(e=>safe(()=>e in window,!1)||safe(()=>e in document,!1))}function findDriverProps(){const e=[...safe(()=>Object.getOwnPropertyNames(window),[]),...safe(()=>Object.getOwnPropertyNames(document),[])];return[...new Set(e.filter(e=>DRIVER_PROP_PATTERN.test(e)))].slice(0,8)}function describeWebdriver(){const e=safe(()=>Object.getOwnPropertyDescriptor(Navigator.prototype,"webdriver"));return{value:safe(()=>navigator.webdriver,null),own:safe(()=>Object.prototype.hasOwnProperty.call(navigator,"webdriver"),null),kind:e?typeof e.get=="function"?"getter":"value":"missing",native:e&&e.get?isNative(e.get):null}}function detectCdpRuntime(){let e=!1;const t=new Error("probe");return Object.defineProperty(t,"stack",{configurable:!1,enumerable:!1,get(){return e=!0,""}}),console.debug(t),e}function findPatchedNatives(){const e={"Function.toString":safe(()=>Function.prototype.toString),"navigator.webdriver":safe(()=>Object.getOwnPropertyDescriptor(Navigator.prototype,"webdriver")?.get),"permissions.query":safe(()=>navigator.permissions?.query),getHighEntropyValues:safe(()=>navigator.userAgentData?.getHighEntropyValues),"WebGL.getParameter":safe(()=>WebGLRenderingContext.prototype.getParameter),"canvas.getContext":safe(()=>HTMLCanvasElement.prototype.getContext),"canvas.toDataURL":safe(()=>HTMLCanvasElement.prototype.toDataURL),"Date.getTimezoneOffset":safe(()=>Date.prototype.getTimezoneOffset)};return Object.entries(e).filter(([,e])=>typeof e=="function"&&!isNative(e)).map(([e])=>e)}function inspectStack(){const e=safe(()=>new Error("trace").stack,"")||"";return{stackDepth:e.split(`
+`).length,stackMarkers:STACK_MARKERS.test(e)}}function probeFrame(){const e=document.createElement("iframe");e.style.display="none",e.src="about:blank",document.body.appendChild(e);const t={webdriver:safe(()=>e.contentWindow.navigator.webdriver,null),hasChrome:safe(()=>"chrome"in e.contentWindow,null)};return e.remove(),t}function probeWebgl(){const n=document.createElement("canvas"),e=safe(()=>n.getContext("webgl")||n.getContext("experimental-webgl"));if(!e)return{supported:!1};const t=safe(()=>e.getExtension("WEBGL_debug_renderer_info"));return{supported:!0,vendor:t?safe(()=>String(e.getParameter(t.UNMASKED_VENDOR_WEBGL)).slice(0,128),null):null,renderer:t?safe(()=>String(e.getParameter(t.UNMASKED_RENDERER_WEBGL)).slice(0,128),null):null}}function probeCodecs(){const e=document.createElement("video"),t=document.createElement("audio");return{h264:safe(()=>e.canPlayType('video/mp4; codecs="avc1.42E01E"'),null),webm:safe(()=>e.canPlayType('video/webm; codecs="vp8"'),null),aac:safe(()=>t.canPlayType('audio/mp4; codecs="mp4a.40.2"'),null),mp3:safe(()=>t.canPlayType("audio/mpeg"),null)}}async function probeUserAgentData(){const t=safe(()=>navigator.userAgentData);if(!t)return{supported:!1};const n=e=>(e||[]).map(e=>`${e.brand} ${e.version}`),s={supported:!0,brands:safe(()=>n(t.brands),[]),mobile:safe(()=>t.mobile,null),platform:safe(()=>t.platform,null)},e=await safe(()=>t.getHighEntropyValues(["architecture","bitness","model","platformVersion","uaFullVersion","fullVersionList","wow64"]).catch(()=>null),null);return e?{...s,architecture:e.architecture??null,bitness:e.bitness??null,model:e.model??null,platformVersion:e.platformVersion??null,uaFullVersion:e.uaFullVersion??null,wow64:e.wow64??null,fullVersionList:n(e.fullVersionList)}:s}async function probeNotifications(){return{permission:safe(()=>window.Notification?.permission,null),state:await safe(()=>navigator.permissions.query({name:"notifications"}).then(e=>e.state,()=>null),null)}}function probeVoices(){const t=()=>safe(()=>speechSynthesis.getVoices().length,null),e=t();return e===null||e>0?Promise.resolve(e):new Promise(e=>setTimeout(()=>e(t()),300))}async function collectSignals(){const t=performance.now(),e={v:SIGNAL_VERSION,automation:{globals:safe(findAutomationGlobals,[]),node:safe(()=>NODE_GLOBALS.filter(e=>e in window),[]),driverProps:safe(findDriverProps,[]),...safe(inspectStack,{})},webdriver:safe(describeWebdriver,null),cdp:{runtimeEnabled:safe(detectCdpRuntime,null)},natives:safe(findPatchedNatives,[]),frame:safe(probeFrame,null),navigator:{plugins:safe(()=>navigator.plugins.length,null),mimeTypes:safe(()=>navigator.mimeTypes.length,null),pdfViewerEnabled:safe(()=>navigator.pdfViewerEnabled,null),languages:safe(()=>Array.from(navigator.languages||[]),null),hardwareConcurrency:safe(()=>navigator.hardwareConcurrency,null),deviceMemory:safe(()=>navigator.deviceMemory,null),maxTouchPoints:safe(()=>navigator.maxTouchPoints,null),platform:safe(()=>navigator.platform,null),vendor:safe(()=>navigator.vendor,null),chromeKeys:safe(()=>window.chrome?Object.keys(window.chrome).slice(0,16):null,null)},features:{notification:safe(()=>"Notification"in window,null),sharedWorker:safe(()=>"SharedWorker"in window,null),serviceWorker:safe(()=>"serviceWorker"in navigator,null),battery:safe(()=>"getBattery"in navigator,null),bluetooth:safe(()=>"bluetooth"in navigator,null),webgpu:safe(()=>"gpu"in navigator,null),connection:safe(()=>navigator.connection?.effectiveType,null)},webgl:safe(probeWebgl,null),codecs:safe(probeCodecs,null),screen:safe(()=>({width:screen.width,height:screen.height,availWidth:screen.availWidth,availHeight:screen.availHeight,depth:screen.colorDepth,dpr:window.devicePixelRatio}),null),viewport:safe(()=>({innerWidth:window.innerWidth,innerHeight:window.innerHeight,outerWidth:window.outerWidth,outerHeight:window.outerHeight}),null),tz:{name:safe(()=>Intl.DateTimeFormat().resolvedOptions().timeZone,null),offset:safe(()=>(new Date).getTimezoneOffset(),null)}},[n,s,o]=await Promise.all([withTimeout(probeUserAgentData(),SIGNAL_TIMEOUT_MS),withTimeout(probeNotifications(),SIGNAL_TIMEOUT_MS),withTimeout(probeVoices(),SIGNAL_TIMEOUT_MS)]);return e.ua=n,e.notifications=s,e.voices=o,e.collectMs=Math.round(performance.now()-t),e}navigator.cookieEnabled?run():showError("Please enable cookies to continue.");async function run(){statusText.textContent="Checking your browser…";const a=await collectSignals().catch(()=>({v:SIGNAL_VERSION,error:!0}));statusText.textContent="Verifying your browser…";let e,t,n;try{const s=await fetch("/liquipedia-captcha/pow/challenge",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({signals:a})});if(s.status===403){showError(BLOCKED);return}if(!s.ok)throw new Error(`HTTP ${s.status}`);({challenge:e,difficulty:t,token:n}=await s.json())}catch(e){showError(RETRY_LINK),console.error("Failed to fetch challenge:",e);return}let s,o;try{({nonce:s,hash:o}=await solvePoW(e,t))}catch(e){showError(RETRY_LINK),console.error("PoW worker failed:",e);return}hashrateEl.textContent="";const i=new AbortController,r=setTimeout(()=>i.abort(),5e3);try{const t=await fetch("/liquipedia-captcha/pow/verify",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({challenge:e,nonce:s,hash:o,token:n}),signal:i.signal});if(t.ok)showContinue();else throw new Error(`HTTP ${t.status}`)}catch(e){showError(RETRY_LINK),console.error("Verification request failed:",e)}finally{clearTimeout(r)}}function solvePoW(e,t){return new Promise((n,s)=>{const i=`
+  const K = new Int32Array([
+    0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5,
+    0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
+    0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3,
+    0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+    0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc,
+    0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+    0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7,
+    0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
+    0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13,
+    0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
+    0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3,
+    0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+    0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5,
+    0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+    0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208,
+    0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2,
+  ]);
+
+  const W = new Int32Array(64);
+
+  function sha256(msgBytes) {
+    let h0 =  0x6a09e667, h1 =  0xbb67ae85, h2 =  0x3c6ef372, h3 =  0xa54ff53a;
+    let h4 =  0x510e527f, h5 =  0x9b05688c, h6 =  0x1f83d9ab, h7 =  0x5be0cd19;
+
+    const len    = msgBytes.length;
+    const bitLen = len * 8;
+
+    const padLen = len + 1 + (((55 - len) % 64) + 64) % 64 + 1 + 7;
+    const padded = new Uint8Array(padLen);
+    padded.set(msgBytes);
+    padded[len] = 0x80;
+    const dv = new DataView(padded.buffer);
+    dv.setUint32(padLen - 4, bitLen >>> 0,  false);
+    dv.setUint32(padLen - 8, Math.floor(bitLen / 2**32), false);
+
+    for (let offset = 0; offset < padLen; offset += 64) {
+      for (let i = 0; i < 16; i++) {
+        W[i] = dv.getInt32(offset + i * 4, false);
+      }
+      for (let i = 16; i < 64; i++) {
+        const s0 = rot(W[i-15], 7)  ^ rot(W[i-15], 18) ^ (W[i-15] >>> 3);
+        const s1 = rot(W[i-2],  17) ^ rot(W[i-2],  19) ^ (W[i-2]  >>> 10);
+        W[i] = (W[i-16] + s0 + W[i-7] + s1) | 0;
+      }
+
+      let a=h0, b=h1, c=h2, d=h3, e=h4, f=h5, g=h6, h=h7;
+
+      for (let i = 0; i < 64; i++) {
+        const S1   = rot(e, 6) ^ rot(e, 11) ^ rot(e, 25);
+        const ch   = (e & f) ^ (~e & g);
+        const tmp1 = (h + S1 + ch + K[i] + W[i]) | 0;
+        const S0   = rot(a, 2) ^ rot(a, 13) ^ rot(a, 22);
+        const maj  = (a & b) ^ (a & c) ^ (b & c);
+        const tmp2 = (S0 + maj) | 0;
+        h=g; g=f; f=e; e=(d+tmp1)|0;
+        d=c; c=b; b=a; a=(tmp1+tmp2)|0;
+      }
+
+      h0=(h0+a)|0; h1=(h1+b)|0; h2=(h2+c)|0; h3=(h3+d)|0;
+      h4=(h4+e)|0; h5=(h5+f)|0; h6=(h6+g)|0; h7=(h7+h)|0;
+    }
+
+    const out = new Uint8Array(32);
+    const odv = new DataView(out.buffer);
+    odv.setInt32(0,  h0, false); odv.setInt32(4,  h1, false);
+    odv.setInt32(8,  h2, false); odv.setInt32(12, h3, false);
+    odv.setInt32(16, h4, false); odv.setInt32(20, h5, false);
+    odv.setInt32(24, h6, false); odv.setInt32(28, h7, false);
+    return out;
+  }
+
+  function rot(x, n) { return (x >>> n) | (x << (32 - n)); }
+
+  const HEX = new Array(256);
+  for (let i = 0; i < 256; i++) HEX[i] = i.toString(16).padStart(2, '0');
+
+  function bytesToHex(bytes) {
+    let s = '';
+    for (let i = 0; i < bytes.length; i++) s += HEX[bytes[i]];
+    return s;
+  }
+
+  function solve(challenge, difficulty) {
+    const encoder   = new TextEncoder();
+    const prefix    = challenge + ':';
+    const fullBytes = Math.floor(difficulty / 8);
+    const extraBits = difficulty % 8;
+    let   nonce     = 0;
+
+    while (true) {
+      const bytes = sha256(encoder.encode(prefix + nonce));
+
+      let ok = true;
+      for (let i = 0; i < fullBytes; i++) {
+        if (bytes[i] !== 0) { ok = false; break; }
+      }
+      if (ok && extraBits > 0 && bytes[fullBytes] >> (8 - extraBits) !== 0) {
+        ok = false;
+      }
+
+      if (ok) {
+        self.postMessage({ type: 'solved', nonce, hash: bytesToHex(bytes) });
+        return;
+      }
+
+      nonce++;
+      if (nonce % 50000 === 0) {
+        self.postMessage({ type: 'progress', nonce });
+      }
+    }
+  }
+
+  self.onmessage = e => solve(e.data.challenge, e.data.difficulty);
+`,a=new Blob([i],{type:"application/javascript"}),o=new Worker(URL.createObjectURL(a)),r=performance.now();o.onmessage=function(e){if(e.data.type==="progress"){const t=(performance.now()-r)/1e3;hashrateEl.textContent=formatHashRate(e.data.nonce/t);return}e.data.type==="solved"&&(o.terminate(),n({nonce:e.data.nonce,hash:e.data.hash}))},o.onerror=function(e){o.terminate(),s(e)},o.postMessage({challenge:e,difficulty:t})})}function formatHashRate(e){return e>=1e6?(e/1e6).toFixed(1)+" MH/s":e>=1e3?(e/1e3).toFixed(1)+" kH/s":Math.round(e)+" H/s"}</script>
