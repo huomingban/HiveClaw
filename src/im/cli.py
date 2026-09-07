@@ -13,7 +13,7 @@ from .service import IMService, IMServiceConfig
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="XingClaw IM bridge service")
+    parser = argparse.ArgumentParser(description="HiveClaw IM bridge service")
     parser.add_argument("--platform", choices=["feishu"], default="feishu", help="IM platform (current: feishu)")
     parser.add_argument(
         "--transport",
@@ -79,7 +79,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             channel_queue_limit=max(1, int(args.channel_queue_limit)),
         ),
     )
-    events_dir = Path(args.events_dir) if args.events_dir else Path(args.workspace) / ".xingclaw" / "im" / "events"
+    events_dir = Path(args.events_dir) if args.events_dir else Path(args.workspace) / ".hiveclaw" / "im" / "events"
     watcher = IMEventWatcher(service, IMEventWatcherOptions(events_dir=events_dir))
     watcher.start()
     try:

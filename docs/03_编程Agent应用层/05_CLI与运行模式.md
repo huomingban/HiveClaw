@@ -55,7 +55,7 @@ flowchart TD
 
 ```python
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="XingClaw coding-agent CLI")
+    parser = argparse.ArgumentParser(description="HiveClaw coding-agent CLI")
     parser.add_argument("--mode", choices=["print", "interactive", "rpc"], default="interactive")
     parser.add_argument("--workspace", default=".", help="Workspace directory")
     parser.add_argument("--session-id", default=None, help="Existing session id to resume")

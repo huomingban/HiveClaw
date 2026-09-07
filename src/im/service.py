@@ -36,7 +36,7 @@ from .types import (
     IMUserInfo,
 )
 
-logger = logging.getLogger("xingclaw.im.service")
+logger = logging.getLogger("hiveclaw.im.service")
 
 _STREAM_UPDATE_INTERVAL = 1.5
 _THINKING_PLACEHOLDER = "思考中..."
@@ -261,7 +261,7 @@ class IMService:
             placeholder_id = self.adapter.send_card(
                 IMOutgoingCard(
                     channel_id=message.channel_id,
-                    title="XingClaw",
+                    title="HiveClaw",
                     markdown_content=_THINKING_PLACEHOLDER,
                     thread_id=message.thread_id,
                     reply_to_message_id=message.message_id,
@@ -324,7 +324,7 @@ class IMService:
                 self.adapter.send_card(
                     IMOutgoingCard(
                         channel_id=message.channel_id,
-                        title="XingClaw",
+                        title="HiveClaw",
                         markdown_content=text,
                         thread_id=message.thread_id,
                         reply_to_message_id=message.message_id,

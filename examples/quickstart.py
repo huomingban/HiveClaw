@@ -16,7 +16,7 @@ async def main() -> None:
         system_prompt="You are a helpful assistant.",
         messages=[
             UserMessage(
-                content=[TextContent(text="Say hello from XingClaw in one sentence.")],
+                content=[TextContent(text="Say hello from HiveClaw in one sentence.")],
                 timestamp=int(time.time() * 1000),
             )
         ],

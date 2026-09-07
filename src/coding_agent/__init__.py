@@ -1,5 +1,5 @@
 """
-XingClaw coding_agent
+HiveClaw coding_agent
 =====================
 
 应用层会话管理：

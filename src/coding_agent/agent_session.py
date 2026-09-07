@@ -33,7 +33,7 @@ from .extensions.types import ExtensionLifecycleContext
 from .session_store import SessionStore, new_session_id
 from .types import AgentSessionOptions
 
-logger = logging.getLogger("xingclaw.coding_agent.session")
+logger = logging.getLogger("hiveclaw.coding_agent.session")
 
 _COMPACTION_SYSTEM_PROMPT = """你是一个上下文压缩助手。请根据以下对话历史生成一份简明摘要。
 要求：

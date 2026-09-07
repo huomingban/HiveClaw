@@ -11,7 +11,7 @@
 - 你需要一个**登记簿**（注册表），记录每家餐厅用什么方式接单
 - 用户下单时，平台根据用户选的餐厅，**自动找到正确的接单方式**（分发）
 
-在 XingClaw 中：
+在 HiveClaw 中：
 - "餐厅" = AI 厂商（Anthropic、OpenAI、智谱等）
 - "下单方式" = API 协议（Anthropic Messages、OpenAI Chat Completions）
 - "登记簿" = `api_registry.py` 中的 `_REGISTRY` 字典

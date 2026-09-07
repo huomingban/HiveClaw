@@ -16,7 +16,7 @@ from .types import (
     IMWebhookResult,
 )
 
-logger = logging.getLogger("xingclaw.im.feishu")
+logger = logging.getLogger("hiveclaw.im.feishu")
 
 
 @dataclass
@@ -163,7 +163,7 @@ class FeishuAdapter:
         token = self._get_tenant_access_token()
         url = f"{self.config.api_base}/im/v1/messages/{message_id}"
         headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json; charset=utf-8"}
-        card = self._build_card_content("XingClaw", text)
+        card = self._build_card_content("HiveClaw", text)
         payload = {
             "content": card,
         }

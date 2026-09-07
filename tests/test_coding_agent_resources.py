@@ -23,7 +23,7 @@ from agent_core import AfterToolCallContext, AgentContext, AgentToolResult, Befo
 class CodingAgentResourceTests(unittest.TestCase):
     def test_workspace_loader_reads_files(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
-            root = Path(tmp_dir) / ".xingclaw"
+            root = Path(tmp_dir) / ".hiveclaw"
             root.mkdir(parents=True, exist_ok=True)
             (root / "prompt.md").write_text("system from prompt", encoding="utf-8")
             (root / "settings.json").write_text(
@@ -91,7 +91,7 @@ class CodingAgentResourceTests(unittest.TestCase):
 
     def test_factory_uses_workspace_resources(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
-            root = Path(tmp_dir) / ".xingclaw"
+            root = Path(tmp_dir) / ".hiveclaw"
             root.mkdir(parents=True, exist_ok=True)
             (root / "prompt.md").write_text("workspace prompt", encoding="utf-8")
             (root / "settings.json").write_text(
@@ -127,7 +127,7 @@ class CodingAgentResourceTests(unittest.TestCase):
 
     def test_factory_read_only_mode_filters_tools(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
-            root = Path(tmp_dir) / ".xingclaw"
+            root = Path(tmp_dir) / ".hiveclaw"
             root.mkdir(parents=True, exist_ok=True)
             (root / "settings.json").write_text(
                 json.dumps({"provider": "openai-standard", "model_id": "gpt-4o-mini", "read_only_mode": True}),
@@ -154,7 +154,7 @@ class CodingAgentResourceTests(unittest.TestCase):
 
     def test_dynamic_prompt_from_workspace_settings(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
-            root = Path(tmp_dir) / ".xingclaw"
+            root = Path(tmp_dir) / ".hiveclaw"
             root.mkdir(parents=True, exist_ok=True)
             (root / "settings.json").write_text(
                 json.dumps(
@@ -177,7 +177,7 @@ class CodingAgentResourceTests(unittest.TestCase):
 
     def test_skill_markdown_is_injected_into_prompt(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
-            skill_dir = Path(tmp_dir) / ".xingclaw" / "skills"
+            skill_dir = Path(tmp_dir) / ".hiveclaw" / "skills"
             skill_dir.mkdir(parents=True, exist_ok=True)
             (skill_dir / "review.md").write_text(
                 "# 代码审查技能\n\n优先识别风险和回归点，再给修复建议。",
@@ -199,7 +199,7 @@ class CodingAgentResourceTests(unittest.TestCase):
 
     def test_skill_frontmatter_registers_command_and_diagnostics(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
-            skill_dir = Path(tmp_dir) / ".xingclaw" / "skills"
+            skill_dir = Path(tmp_dir) / ".hiveclaw" / "skills"
             skill_dir.mkdir(parents=True, exist_ok=True)
             (skill_dir / "s1.md").write_text(
                 "---\nname: 审查技能\ncommand: skill:review\ndescription: 执行审查\n---\n请按清单审查。",
@@ -225,7 +225,7 @@ class CodingAgentResourceTests(unittest.TestCase):
 
     def test_extension_registers_tool_and_hooks(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
-            ext_dir = Path(tmp_dir) / ".xingclaw" / "extensions"
+            ext_dir = Path(tmp_dir) / ".hiveclaw" / "extensions"
             ext_dir.mkdir(parents=True, exist_ok=True)
             (ext_dir / "sample_ext.py").write_text(
                 "\n".join(

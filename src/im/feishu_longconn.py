@@ -9,7 +9,7 @@ from typing import Any
 from .service import IMService
 from .types import IMIncomingMessage
 
-logger = logging.getLogger("xingclaw.im.feishu.longconn")
+logger = logging.getLogger("hiveclaw.im.feishu.longconn")
 
 
 @dataclass
